@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador VCT EMEA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .button {
+            padding: 8px 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .button-green {
+            background-color: #4CAF50;
+        }
+
+        .button-green:hover {
+            background-color: #45a049;
+        }
+
+        .button-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .match {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+            margin-bottom: 10px;
+        }
+
+        .team-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .team {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .vs {
+            margin: 0 10px;
+        }
+
+        .map-select {
+            width: 60px;
+            margin-right: 10px;
+            text-align: center;
+        }
+
+        .modified {
+            background-color: #ffeeba;
+        }
+
+        .week {
+            margin-bottom: 20px;
+        }
+
+        .week-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .table-container {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        .table-container th,
+        .table-container td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .table-container th {
+            background-color: #f2f2f2;
+        }
+
+        .table-container td:first-child,
+        .table-container th:first-child {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simulador VCT EMEA</h1>
+    <button class="button button-green button-small" onclick="mostrarStage('stage1')">Stage 1</button>
+    <button class="button button-green button-small" onclick="mostrarStage('stage2')">Stage 2</button>
+
+    <div id="weeks-container">
+        <!-- Aquí se cargarán dinámicamente los partidos -->
+    </div>
+
+    <div id="table-container">
+        <!-- Aquí se cargarán dinámicamente la tabla de clasificación -->
+    </div>
+
+    <script>
+        // Datos de los partidos del Stage 1 y Stage 2
+        const partidosStage1 = [
+        { fecha: 'WED, APRIL 3, 2024', hora: '5:00 PM', equipoA: 'Karmine Corp', mapasA: '2', equipoB: 'GIANTX', mapasB: '0', modificado: false },
+            { fecha: 'WED, APRIL 3, 2024', hora: '7:05 PM', equipoA: 'KOI', mapasA: '0', equipoB: 'Team Liquid', mapasB: '2', modificado: false },
+            { fecha: 'THU, APRIL 4, 2024', hora: '5:00 PM', equipoA: 'Team Vitality', mapasA: '0', equipoB: 'Natus Vincere', mapasB: '2', modificado: false },
+            { fecha: 'THU, APRIL 4, 2024', hora: '7:10 PM', equipoA: 'FNATIC', mapasA: '0', equipoB: 'Team Heretics', mapasB: '2', modificado: false },
+            { fecha: 'FRI, APRIL 5, 2024', hora: '5:00 PM', equipoA: 'Team Liquid', mapasA: '0', equipoB: 'FUT Esports', mapasB: '2', modificado: false },
+            { fecha: 'FRI, APRIL 5, 2024', hora: '7:00 PM', equipoA: 'BBL Esports', mapasA: '0', equipoB: 'Gentle Mates', mapasB: '2', modificado: false },
+            { fecha: 'WED, APRIL 10, 2024', hora: '5:00 PM', equipoA: 'Karmine Corp', mapasA: '1', equipoB: 'FUT Esports', mapasB: '2', modificado: false },
+            { fecha: 'WED, APRIL 10, 2024', hora: '8:10 PM', equipoA: 'Team Vitality', mapasA: '2', equipoB: 'Team Heretics', mapasB: '1', modificado: false },
+            { fecha: 'THU, APRIL 11, 2024', hora: '5:00 PM', equipoA: 'Team Liquid', mapasA: '1', equipoB: 'Natus Vincere', mapasB: '2', modificado: false },
+            { fecha: 'THU, APRIL 11, 2024', hora: '8:20 PM', equipoA: 'BBL Esports', mapasA: '2', equipoB: 'KOI', mapasB: '0', modificado: false },
+            { fecha: 'FRI, APRIL 12, 2024', hora: '5:00 PM', equipoA: 'FNATIC', mapasA: '2', equipoB: 'GIANTX', mapasB: '1', modificado: false },
+            { fecha: 'FRI, APRIL 12, 2024', hora: '7:45 PM', equipoA: 'Karmine Corp', mapasA: '2', equipoB: 'Gentle Mates', mapasB: '0', modificado: false },
+            { fecha: 'WED, APRIL 17, 2024', hora: '5:00 PM', equipoA: 'Gentle Mates', mapasA: '0', equipoB: 'FNATIC', mapasB: '2', modificado: false },
+            { fecha: 'WED, APRIL 17, 2024', hora: '7:00 PM', equipoA: 'Karmine Corp', mapasA: '1', equipoB: 'Natus Vincere', mapasB: '2', modificado: false },
+            { fecha: 'THU, APRIL 18, 2024', hora: '5:00 PM', equipoA: 'BBL Esports', mapasA: '2', equipoB: 'Team Heretics', mapasB: '0', modificado: false },
+            { fecha: 'THU, APRIL 18, 2024', hora: '7:15 PM', equipoA: 'Team Vitality', mapasA: '2', equipoB: 'FUT Esports', mapasB: '1', modificado: false },
+            { fecha: 'FRI, APRIL 19, 2024', hora: '5:00 PM', equipoA: 'Team Liquid', mapasA: '2', equipoB: 'GIANTX', mapasB: '1', modificado: false },
+            { fecha: 'FRI, APRIL 19, 2024', hora: '8:55 PM', equipoA: 'FNATIC', mapasA: '2', equipoB: 'KOI', mapasB: '0', modificado: false },
+            { fecha: 'WED, APRIL 24, 2024', hora: '5:00 PM', equipoA: 'Team Liquid', mapasA: '0', equipoB: 'Team Heretics', mapasB: '2', modificado: false },
+            { fecha: 'WED, APRIL 24, 2024', hora: '7:00 PM', equipoA: 'Team Vitality', mapasA: '0', equipoB: 'Gentle Mates', mapasB: '2', modificado: false },
+            { fecha: 'THU, APRIL 25, 2024', hora: '5:00 PM', equipoA: 'FNATIC', mapasA: '0', equipoB: 'FUT Esports', mapasB: '2', modificado: false },
+            { fecha: 'THU, APRIL 25, 2024', hora: '7:30 PM', equipoA: 'BBL Esports', mapasA: '2', equipoB: 'Natus Vincere', mapasB: '1', modificado: false },
+            { fecha: 'FRI, APRIL 26, 2024', hora: '5:00 PM', equipoA: 'Team Vitality', mapasA: '2', equipoB: 'GIANTX', mapasB: '1', modificado: false },
+            { fecha: 'FRI, APRIL 26, 2024', hora: '8:10 PM', equipoA: 'Karmine Corp', mapasA: '2', equipoB: 'KOI', mapasB: '1', modificado: false },
+            { fecha: 'WED, MAY 1, 2024', hora: '5:00 PM', equipoA: 'BBL Esports', mapasA: '0', equipoB: 'GIANTX', mapasB: '2', modificado: false },
+            { fecha: 'WED, MAY 1, 2024', hora: '7:00 PM', equipoA: 'Karmine Corp', mapasA: '1', equipoB: 'Team Heretics', mapasB: '2', modificado: false },
+            { fecha: 'THU, MAY 2, 2024', hora: '5:00 PM', equipoA: 'Team Vitality', mapasA: '1', equipoB: 'KOI', mapasB: '2', modificado: false },
+            { fecha: 'THU, MAY 2, 2024', hora: '7:55 PM', equipoA: 'Natus Vincere', mapasA: '2', equipoB: 'FNATIC', mapasB: '1', modificado: false },
+            { fecha: 'FRI, MAY 3, 2024', hora: '5:00 PM', equipoA: 'Team Liquid', mapasA: '2', equipoB: 'Gentle Mates', mapasB: '0', modificado: false },
+            { fecha: 'FRI, MAY 3, 2024', hora: '6:50 PM', equipoA: 'BBL Esports', mapasA: '0', equipoB: 'FUT Esports', mapasB: '2', modificado: false }
+        ];
+
+        // Datos de ejemplo de los partidos del Stage 2 con resultados actuales
+        const partidosStage2 = [
+            { fecha: 'TUE, JUNE 18, 2024', hora: '8:00 PM', equipoA: 'FUT Esports', mapasA: '2', equipoB: 'KOI', mapasB: '1', modificado: false },
+            { fecha: 'WED, JUNE 19, 2024', hora: '6:00 PM', equipoA: 'BBL Esports', mapasA: '1', equipoB: 'FNATIC', mapasB: '2', modificado: false },
+            { fecha: 'WED, JUNE 19, 2024', hora: '9:30 PM', equipoA: 'Team Heretics', mapasA: '2', equipoB: 'Natus Vincere', mapasB: '0', modificado: false },
+            { fecha: 'THU, JUNE 20, 2024', hora: '6:00 PM', equipoA: 'GIANTX', mapasA: '2', equipoB: 'Gentle Mates', mapasB: '1', modificado: false },
+            { fecha: 'THU, JUNE 20, 2024', hora: '9:10 PM', equipoA: 'Team Vitality', mapasA: '2', equipoB: 'Team Liquid', mapasB: '0', modificado: false },
+            { fecha: 'FRI, JUNE 21, 2024', hora: '6:00 PM', equipoA: 'BBL Esports', mapasA: '0', equipoB: 'Karmine Corp', mapasB: '2', modificado: false },
+            { fecha: 'FRI, JUNE 21, 2024', hora: '7:50 PM', equipoA: 'Natus Vincere', mapasA: '0', equipoB: 'FUT Esports', mapasB: '2', modificado: false },
+            { fecha: 'TUE, JUNE 25, 2024', hora: '8:00 PM', equipoA: 'KOI', mapasA: '2', equipoB: 'GIANTX', mapasB: '0', modificado: false },
+            { fecha: 'WED, JUNE 26, 2024', hora: '6:00 PM', equipoA: 'Team Heretics', mapasA: '2', equipoB: 'FUT Esports', mapasB: '0', modificado: false },
+            { fecha: 'WED, JUNE 26, 2024', hora: '8:15 PM', equipoA: 'FNATIC', mapasA: '2', equipoB: 'Team Vitality', mapasB: '1', modificado: false },
+            { fecha: 'THU, JUNE 27, 2024', hora: '6:00 PM', equipoA: 'BBL Esports', mapasA: '2', equipoB: 'Team Liquid', mapasB: '0', modificado: false },
+            { fecha: 'THU, JUNE 27, 2024', hora: '9:00 PM', equipoA: 'Natus Vincere', mapasA: '0', equipoB: 'GIANTX', mapasB: '2', modificado: false },
+            { fecha: 'FRI, JUNE 28, 2024', hora: '6:00 PM', equipoA: 'KOI', mapasA: '0', equipoB: 'Gentle Mates', mapasB: '0', modificado: false },
+            { fecha: 'FRI, JUNE 28, 2024', hora: '9:00 PM', equipoA: 'FNATIC', mapasA: '0', equipoB: 'Karmine Corp', mapasB: '0', modificado: false },
+            { fecha: 'WED, JULY 3, 2024', hora: '6:00 PM', equipoA: 'Team Heretics', mapasA: '0', equipoB: 'GIANTX', mapasB: '0', modificado: false },
+            { fecha: 'WED, JULY 3, 2024', hora: '9:00 PM', equipoA: 'FUT Esports', mapasA: '0', equipoB: 'Gentle Mates', mapasB: '0', modificado: false },
+            { fecha: 'THU, JULY 4, 2024', hora: '6:00 PM', equipoA: 'KOI', mapasA: '0', equipoB: 'Natus Vincere', mapasB: '0', modificado: false },
+            { fecha: 'THU, JULY 4, 2024', hora: '9:00 PM', equipoA: 'Team Liquid', mapasA: '0', equipoB: 'Karmine Corp', mapasB: '0', modificado: false },
+            { fecha: 'FRI, JULY 5, 2024', hora: '6:00 PM', equipoA: 'BBL Esports', mapasA: '0', equipoB: 'Team Vitality', mapasB: '0', modificado: false },
+            { fecha: 'FRI, JULY 5, 2024', hora: '9:00 PM', equipoA: 'Team Heretics', mapasA: '0', equipoB: 'Gentle Mates', mapasB: '0', modificado: false },
+            { fecha: 'TUE, JULY 9, 2024', hora: '8:00 PM', equipoA: 'FUT Esports', mapasA: '0', equipoB: 'GIANTX', mapasB: '0', modificado: false },
+            { fecha: 'WED, JULY 10, 2024', hora: '6:00 PM', equipoA: 'Team Heretics', mapasA: '0', equipoB: 'KOI', mapasB: '0', modificado: false },
+            { fecha: 'WED, JULY 10, 2024', hora: '9:00 PM', equipoA: 'FNATIC', mapasA: '0', equipoB: 'Team Liquid', mapasB: '0', modificado: false },
+            { fecha: 'THU, JULY 11, 2024', hora: '6:00 PM', equipoA: 'Natus Vincere', mapasA: '0', equipoB: 'Gentle Mates', mapasB: '0', modificado: false },
+            { fecha: 'THU, JULY 11, 2024', hora: '9:00 PM', equipoA: 'Team Vitality', mapasA: '0', equipoB: 'Karmine Corp', mapasB: '0', modificado: false }
+        ];
+
+        // Función para mostrar los partidos de un stage
+        function mostrarStage(stage) {
+            const weeksContainer = document.getElementById('weeks-container');
+            weeksContainer.innerHTML = '';
+
+            const partidos = stage === 'stage1' ? partidosStage1 : partidosStage2;
+
+            const semanas = {};
+
+            partidos.forEach(partido => {
+                if (!semanas[partido.fecha]) {
+                    semanas[partido.fecha] = [];
+                }
+                semanas[partido.fecha].push(partido);
+            });
+
+            Object.keys(semanas).forEach(semana => {
+                const semanaDiv = document.createElement('div');
+                semanaDiv.className = 'week';
+
+                const semanaTitulo = document.createElement('div');
+                semanaTitulo.className = 'week-title';
+                semanaTitulo.innerText = semana;
+                semanaDiv.appendChild(semanaTitulo);
+
+                semanas[semana].forEach(partido => {
+                    const partidoDiv = document.createElement('div');
+                    partidoDiv.className = `match ${partido.modificado ? 'modified' : ''}`;
+
+                    const equipoAContainer = document.createElement('div');
+                    equipoAContainer.className = 'team-container';
+                    const equipoA = document.createElement('div');
+                    equipoA.className = 'team';
+                    equipoA.innerText = partido.equipoA;
+                    equipoAContainer.appendChild(equipoA);
+                    const mapasA = document.createElement('select');
+                    mapasA.className = 'map-select';
+                    agregarOpciones(mapasA);
+                    mapasA.value = partido.mapasA;
+                    mapasA.addEventListener('change', () => modificarResultado(partido, mapasA, mapasB));
+                    equipoAContainer.appendChild(mapasA);
+
+                    const vs = document.createElement('div');
+                    vs.className = 'vs';
+                    vs.innerText = 'vs';
+
+                    const equipoBContainer = document.createElement('div');
+                    equipoBContainer.className = 'team-container';
+                    const equipoB = document.createElement('div');
+                    equipoB.className = 'team';
+                    equipoB.innerText = partido.equipoB;
+                    equipoBContainer.appendChild(equipoB);
+                    const mapasB = document.createElement('select');
+                    mapasB.className = 'map-select';
+                    agregarOpciones(mapasB);
+                    mapasB.value = partido.mapasB;
+                    mapasB.addEventListener('change', () => modificarResultado(partido, mapasA, mapasB));
+                    equipoBContainer.appendChild(mapasB);
+
+                    const aplicarCambiosBtn = document.createElement('button');
+                    aplicarCambiosBtn.className = 'button button-green small-btn';
+                    aplicarCambiosBtn.innerText = 'Aplicar cambios';
+                    aplicarCambiosBtn.addEventListener('click', () => aplicarCambiosResultado(partido, mapasA, mapasB));
+
+                    partidoDiv.appendChild(equipoAContainer);
+                    partidoDiv.appendChild(vs);
+                    partidoDiv.appendChild(equipoBContainer);
+                    partidoDiv.appendChild(aplicarCambiosBtn);
+
+                    semanaDiv.appendChild(partidoDiv);
+                });
+
+                weeksContainer.appendChild(semanaDiv);
+            });
+
+            // Mostrar la tabla de clasificación
+            mostrarTablaClasificacion(stage);
+        }
+
+        // Función para agregar las opciones de 0, 1 y 2 a un elemento select
+        function agregarOpciones(select) {
+            for (let i = 0; i <= 2; i++) {
+                const option = document.createElement('option');
+                option.value = i.toString();
+                option.text = i.toString();
+                select.appendChild(option);
+            }
+        }
+
+        // Función para modificar el resultado
+        function modificarResultado(partido, mapasASelect, mapasBSelect) {
+            partido.mapasA = mapasASelect.value;
+            partido.mapasB = mapasBSelect.value;
+            partido.modificado = true;
+
+            // Añadir la clase modificada
+            mapasASelect.closest('.match').classList.add('modified');
+        }
+
+        // Función para aplicar cambios en el resultado
+        function aplicarCambiosResultado(partido, mapasASelect, mapasBSelect) {
+            const mapasAnterioresA = partido.mapasA;
+            const mapasAnterioresB = partido.mapasB;
+
+            partido.mapasA = mapasASelect.value;
+            partido.mapasB = mapasBSelect.value;
+            partido.modificado = false;
+
+            // Actualizar las estadísticas solo si ha habido un cambio
+            if (mapasAnterioresA !== mapasASelect.value || mapasAnterioresB !== mapasBSelect.value) {
+                actualizarEstadisticas();
+            }
+
+            // Quitar la clase modificada
+            mapasASelect.closest('.match').classList.remove('modified');
+
+            // Mostrar la tabla de clasificación actualizada
+            mostrarTablaClasificacion(partido.fecha.includes('2024') ? 'stage2' : 'stage1');
+        }
+
+        // Función para actualizar las estadísticas de los equipos
+        function actualizarEstadisticas() {
+            // Reiniciar estadísticas
+            equipos.forEach(equipo => {
+                equipo.victorias = 0;
+                equipo.derrotas = 0;
+                equipo.mapasGanados = 0;
+                equipo.mapasPerdidos = 0;
+                equipo.diferenciaMapas = 0;
+            });
+
+            partidosStage1.concat(partidosStage2).forEach(partido => {
+                const equipoA = equipos.find(equipo => equipo.nombre === partido.equipoA);
+                const equipoB = equipos.find(equipo => equipo.nombre === partido.equipoB);
+
+                if (partido.modificado) {
+                    actualizarEquipo(equipoA, partido.mapasA, mapasAnterioresA, partido.mapasB, mapasAnterioresB);
+                    actualizarEquipo(equipoB, partido.mapasB, mapasAnterioresB, partido.mapasA, mapasAnterioresA);
+                } else {
+                    actualizarEquipo(equipoA, partido.mapasA, 0, partido.mapasB, 0);
+                    actualizarEquipo(equipoB, partido.mapasB, 0, partido.mapasA, 0);
+                }
+            });
+
+            function actualizarEquipo(equipo, mapasGanados, mapasAnterioresGanados, mapasPerdidos, mapasAnterioresPerdidos) {
+                equipo.mapasGanados += parseInt(mapasGanados) - parseInt(mapasAnterioresGanados);
+                equipo.mapasPerdidos += parseInt(mapasPerdidos) - parseInt(mapasAnterioresPerdidos);
+
+                if (parseInt(mapasGanados) > parseInt(mapasPerdidos)) {
+                    equipo.victorias++;
+                } else {
+                    equipo.derrotas++;
+                }
+
+                equipo.diferenciaMapas = equipo.mapasGanados - equipo.mapasPerdidos;
+            }
+
+            // Ordenar equipos
+            equipos.sort((a, b) => {
+                if (a.victorias !== b.victorias) {
+                    return b.victorias - a.victorias; // Más victorias primero
+                } else {
+                    // Calcular el resultado directo si hay empate en victorias
+                    const directoA = calcularResultadoDirecto(a);
+                    const directoB = calcularResultadoDirecto(b);
+                    if (directoA !== directoB) {
+                        return directoB - directoA; // Más victorias directas primero
+                    } else {
+                        // Ordenar por diferencia de mapas si hay empate en resultados directos
+                        return b.diferenciaMapas - a.diferenciaMapas;
+                    }
+                }
+            });
+
+            // Mostrar la tabla de clasificación actualizada
+            mostrarTablaClasificacion();
+        }
+
+        // Función para calcular el resultado directo entre dos equipos
+        function calcularResultadoDirecto(equipo) {
+            let victoriasDirectas = 0;
+            partidosStage1.concat(partidosStage2).forEach(partido => {
+                if (equipo.nombre === partido.equipoA) {
+                    if (partido.mapasA > partido.mapasB) {
+                        victoriasDirectas++;
+                    }
+                } else if (equipo.nombre === partido.equipoB) {
+                    if (partido.mapasB > partido.mapasA) {
+                        victoriasDirectas++;
+                    }
+                }
+            });
+            return victoriasDirectas;
+        }
+
+        // Función para mostrar la tabla de clasificación
+        function mostrarTablaClasificacion(stage) {
+            // Crear lista de equipos con estadísticas
+            const equipos = {};
+            partidosStage1.concat(partidosStage2).forEach(partido => {
+                actualizarEquipo(partido.equipoA, partido.mapasA, partido.mapasB, partido.modificado);
+                actualizarEquipo(partido.equipoB, partido.mapasB, partido.mapasA, partido.modificado);
+            });
+
+            function actualizarEquipo(equipo, mapasGanados, mapasPerdidos, modificado) {
+                if (!equipos[equipo]) {
+                    equipos[equipo] = {
+                        victorias: 0,
+                        derrotas: 0,
+                        mapasGanados: 0,
+                        mapasPerdidos: 0,
+                        diferenciaMapas: 0
+                    };
+                }
+
+                // Solo contar los partidos jugados como derrotas si no están modificados y no son 0-0
+                if (!modificado && (parseInt(mapasGanados) !== 0 || parseInt(mapasPerdidos) !== 0)) {
+                    equipos[equipo].mapasGanados += parseInt(mapasGanados);
+                    equipos[equipo].mapasPerdidos += parseInt(mapasPerdidos);
+
+                    if (parseInt(mapasGanados) > parseInt(mapasPerdidos)) {
+                        equipos[equipo].victorias++;
+                    } else {
+                        equipos[equipo].derrotas++;
+                    }
+
+                    equipos[equipo].diferenciaMapas += (parseInt(mapasGanados) - parseInt(mapasPerdidos));
+                }
+            }
+
+            // Convertir el objeto de equipos en un array para ordenar
+            const equiposArray = Object.keys(equipos).map(equipo => ({
+                nombre: equipo,
+                datos: equipos[equipo]
+            }));
+
+            // Ordenar equipos por criterios especificados
+            equiposArray.sort((a, b) => {
+                if (a.datos.victorias !== b.datos.victorias) {
+                    return b.datos.victorias - a.datos.victorias; // Más victorias primero
+                } else {
+                    // Calcular el resultado directo si hay empate en victorias
+                    const directoA = calcularResultadoDirecto(a);
+                    const directoB = calcularResultadoDirecto(b);
+                    if (directoA !== directoB) {
+                        return directoB - directoA; // Más victorias directas primero
+                    } else {
+                        // Ordenar por diferencia de mapas si hay empate en resultados directos
+                        return b.datos.diferenciaMapas - a.datos.diferenciaMapas;
+                    }
+                }
+            });
+
+            // Construir y mostrar la tabla de clasificación
+            const tableContainer = document.getElementById('table-container');
+            tableContainer.innerHTML = '';
+            const table = document.createElement('table');
+            table.className = 'table-container';
+            const header = table.createTHead();
+            const row = header.insertRow();
+            const thPos = document.createElement('th');
+            const thEquipo = document.createElement('th');
+            const thVictorias = document.createElement('th');
+            const thDerrotas = document.createElement('th');
+            const thMapasGanados = document.createElement('th');
+            const thMapasPerdidos = document.createElement('th');
+            const thDiferencia = document.createElement('th');
+
+            thPos.innerText = 'Posición';
+            thEquipo.innerText = 'Equipo';
+            thVictorias.innerText = 'Victorias';
+            thDerrotas.innerText = 'Derrotas';
+            thMapasGanados.innerText = 'Mapas Ganados';
+            thMapasPerdidos.innerText = 'Mapas Perdidos';
+            thDiferencia.innerText = 'Diferencia de Mapas';
+
+            row.appendChild(thPos);
+            row.appendChild(thEquipo);
+            row.appendChild(thVictorias);
+            row.appendChild(thDerrotas);
+            row.appendChild(thMapasGanados);
+            row.appendChild(thMapasPerdidos);
+            row.appendChild(thDiferencia);
+
+            equiposArray.forEach((equipo, index) => {
+                const tr = table.insertRow();
+                const tdPos = tr.insertCell();
+                const tdEquipo = tr.insertCell();
+                const tdVictorias = tr.insertCell();
+                const tdDerrotas = tr.insertCell();
+                const tdMapasGanados = tr.insertCell();
+                const tdMapasPerdidos = tr.insertCell();
+                const tdDiferencia = tr.insertCell();
+
+                tdPos.innerText = (index + 1).toString();
+                tdEquipo.innerText = equipo.nombre;
+                tdVictorias.innerText = equipo.datos.victorias.toString();
+                tdDerrotas.innerText = equipo.datos.derrotas.toString();
+                tdMapasGanados.innerText = equipo.datos.mapasGanados.toString();
+                tdMapasPerdidos.innerText = equipo.datos.mapasPerdidos.toString();
+                tdDiferencia.innerText = equipo.datos.diferenciaMapas.toString();
+
+                tr.appendChild(tdPos);
+                tr.appendChild(tdEquipo);
+                tr.appendChild(tdVictorias);
+                tr.appendChild(tdDerrotas);
+                tr.appendChild(tdMapasGanados);
+                tr.appendChild(tdMapasPerdidos);
+                tr.appendChild(tdDiferencia);
+            });
+
+            tableContainer.appendChild(table);
+        }
+
+        // Datos iniciales de los equipos
+        const equipos = [
+            { nombre: 'Team Vitality', victorias: 0, derrotas: 0, mapasGanados: 0, mapasPerdidos: 0, diferenciaMapas: 0 },
+            { nombre: 'Team Liquid', victorias: 0, derrotas: 0, mapasGanados: 0, mapasPerdidos: 0, diferenciaMapas: 0 },
+            { nombre: 'BBL Esports', victorias: 0, derrotas: 0, mapasGanados: 0, mapasPerdidos: 0, diferenciaMapas: 0 },
+            { nombre: 'KOI', victorias: 0, derrotas: 0, mapasGanados: 0, mapasPerdidos: 0, diferenciaMapas: 0 },
+            { nombre: 'FUT Esports', victorias: 0, derrotas: 0, mapasGanados: 0, mapasPerdidos: 0, diferenciaMapas: 0 },
+            { nombre: 'FNATIC', victorias: 0, derrotas: 0, mapasGanados: 0, mapasPerdidos: 0, diferenciaMapas: 0 }
+            // Añadir todos los equipos con sus estadísticas iniciales
+        ];
+
+        // Mostrar los partidos del Stage 1 al cargar la página
+        mostrarStage('stage1');
+
+        // Función para restaurar los resultados originales de los partidos
+        function restaurarResultadosOriginales() {
+            partidosStage1.forEach(partido => {
+                partido.modificado = false;
+                mostrarTablaClasificacion('stage1');
+            });
+
+            partidosStage2.forEach(partido => {
+                partido.modificado = false;
+                mostrarTablaClasificacion('stage2');
+            });
+
+            mostrarStage('stage1');
+        }
+    </script>
+</body>
+</html>
